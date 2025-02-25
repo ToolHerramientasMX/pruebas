@@ -1,0 +1,1128 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=yes">
+    <title>Tool Herramientas MX - Catálogo Milwaukee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; margin: 20px; background-color: #ffffff; }
+        h1 { text-align: center; color: #d00000; font-weight: 700; font-size: 28px; }
+        h2 { text-align: center; color: #343a40; font-weight: 600; font-size: 20px; }
+        .top-bar { text-align: center; margin-bottom: 20px; }
+        .top-bar a { background-color: #d00000; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; margin: 5px; font-weight: 600; display: block; width: 100%; transition: background-color 0.3s; }
+        .top-bar a:hover { background-color: #a80000; }
+        .top-bar i { margin-right: 8px; }
+        .container { max-width: 1200px; margin: auto; }
+        input, select, button { margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ccc; font-family: 'Montserrat', sans-serif; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #343a40; color: white; font-weight: 600; }
+        tr:hover { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .facturacion { text-align: center; font-size: 16px; color: #343a40; font-weight: 600; margin-top: 20px; }
+        .market-price { color: #343a40; font-weight: 600; }
+        .sale-price { color: #e60000; font-weight: 600; }
+        .discount { color: #198754; font-weight: 600; }
+        .status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+        .available { background-color: #198754; }
+        .not-available { background-color: #e60000; }
+        @media screen and (max-width: 768px) {
+            body { font-size: 14px; margin: 10px; }
+            table { font-size: 12px; }
+            td:nth-child(3), th:nth-child(3) { display: none; }
+            td:nth-child(4), th:nth-child(4) { order: 3; }
+            td:nth-child(5), th:nth-child(5) { display: table-cell; order: 4; }
+            td:nth-child(6), th:nth-child(6) { order: 5; }
+            td:nth-child(7), th:nth-child(7) { order: 6; }
+            .top-bar a { margin: 10px 0; width: 100%; }
+        }
+        .social-buttons {
+            position: fixed; /* Fija los botones al hacer scroll */
+            top: 20px; /* Espacio desde el top */
+            left: 20px; /* Espacio desde la izquierda */
+            display: flex;
+            gap: 10px;
+            z-index: 1000; /* Asegura que los botones queden por encima de otros elementos */
+        }
+        .social-buttons a {
+            color: #000;
+            font-size: 24px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .social-buttons a:hover {
+            color: #d00000;
+        }
+    </style>
+    <script>
+        let currentIndex = 10;
+        let filteredRows = [];
+
+        function filterTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let selectCondition = document.getElementById("conditionFilter").value.toLowerCase();
+            let rows = document.querySelectorAll("tbody tr");
+            filteredRows = [];
+
+            rows.forEach(row => {
+                let productName = row.cells[1].textContent.toLowerCase();
+                let condition = row.cells[5].textContent.toLowerCase();
+                let matchesSearch = productName.includes(input);
+                let matchesCondition = (selectCondition === "todos" || condition === selectCondition || 
+                        (selectCondition === "otros" && condition !== "nuevo" && condition !== "usado"));
+
+                if (matchesSearch && matchesCondition) {
+                    filteredRows.push(row);
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            currentIndex = 10;
+            filteredRows.forEach((row, index) => {
+                row.style.display = index < 10 ? "" : "none";
+            });
+
+            let btnMore = document.getElementById("showMoreBtn");
+            let btnLess = document.getElementById("showLessBtn");
+
+            if (filteredRows.length > 10) {
+                btnMore.style.display = "inline-block";
+                btnLess.style.display = "none";
+            } else {
+                btnMore.style.display = "none";
+                btnLess.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let rows = document.querySelectorAll("tbody tr");
+            filteredRows = Array.from(rows);
+            filteredRows.forEach((row, index) => {
+                if (index >= 10) row.style.display = "none";
+            });
+
+            let btnMore = document.getElementById("showMoreBtn");
+            let btnLess = document.getElementById("showLessBtn");
+
+            btnMore.addEventListener("click", function() {
+                for (let i = currentIndex; i < currentIndex + 15 && i < filteredRows.length; i++) {
+                    filteredRows[i].style.display = "";
+                }
+                currentIndex += 15;
+                if (currentIndex >= filteredRows.length) btnMore.style.display = "none";
+                btnLess.style.display = "inline-block";
+            });
+
+            btnLess.addEventListener("click", function() {
+                for (let i = currentIndex - 15; i < filteredRows.length; i++) {
+                    filteredRows[i].style.display = "none";
+                }
+                currentIndex = currentIndex - 15 > 10 ? currentIndex - 15 : 10;
+                if (currentIndex <= 10) btnLess.style.display = "none";
+                btnMore.style.display = "inline-block";
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <!-- Social Media Buttons -->
+    <div class="social-buttons">
+        <a href="https://www.facebook.com/ToolHerramientasMX" target="_blank" class="fab fa-facebook-f"></a>
+        <a href="https://www.instagram.com/ToolHerramientasMX" target="_blank" class="fab fa-instagram"></a>
+    </div>
+
+    <div class="top-bar">
+        <h1 style="font-size: 28px; font-weight: 700; color: #d00000;">Tool Herramientas MX</h1>
+        <h1 style="font-size: 24px; font-weight: 700; color: #d00000; margin-top: -20px;">Outlet</h1> <!-- Se agrega Outlet con el mismo tamaño, peso y color -->
+        <h2>¡Solo herramientas Milwaukee!</h2>
+        <p>Precios por debajo del mercado - Stock único y última oportunidad</p>
+        <p><i class="fas fa-dollar-sign"></i> Todos los precios publicados ya incluyen IVA.</p> <!-- Cambio de emoji 💰 a Font Awesome -->
+        <p><i class="fas fa-check-circle"></i> Emisión de facturas disponible</p> <!-- Cambio de emoji ✅ a Font Awesome -->
+        <a href="mailto:toolherramientasmx@gmail.com?subject=Consulta%20sobre%20herramientas&body=Hola, estoy interesado en las herramientas de Tool Herramientas MX. ¿Podrían darme más información?"><i class="fas fa-envelope"></i> Contactar por Correo</a>
+        <a href="https://api.whatsapp.com/send?phone=5213314630170&text=Hola, estoy interesado en las herramientas de Tool Herramientas MX. ¿Podrían darme más información?" target="_blank"><i class="fab fa-whatsapp"></i> Contactar por WhatsApp</a>
+        <p><i class="fas fa-truck"></i> Entregas solo en Guadalajara o Zapopan. Envíos fuera de estas zonas tienen costo adicional.</p>
+    </div>
+
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por nombre...">
+    <select id="conditionFilter" onchange="filterTable()">
+        <option value="todos">Todos</option>
+        <option value="nuevo">Nuevo</option>
+        <option value="usado">Usado</option>
+        <option value="otros">Otros</option>
+    </select>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre del Producto</th>
+                <th>Precio de Mercado</th>
+                <th>Precio Actual</th>
+                <th>Ahorro</th>
+                <th>Condición</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2760-22CT" target="_blank">Kit de destornillador hidráulico hexagonal M18 FUEL™ SURGE™ de 1/4" 2760-22CT</a></td>
+                <td class="market-price">$9951</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6189</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">37.80%</td>
+                <td>Usado</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>2</td>
+                <td><a href="https://www.amazon.com.mx/MILWAUKEE-M12-PEX-EXPANDER-2474-22/dp/B0CR5PK2L8" target="_blank">Kit de expansor PEX inalámbrico - 2 baterías 2474-22</a></td>
+                <td class="market-price">$12524</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$9779</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">21.92%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>3</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2902-22" target="_blank">Kit de taladro percutor sin escobillas M18 de 1/2" 2902-22</a></td>
+                <td class="market-price">$9050</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4669</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">48.41%</td>
+                <td>Usado</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>4</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3697-22" target="_blank">Kit combinado de 2 herramientas M18 FUEL™ 3697-22</a></td>
+                <td class="market-price">$9712</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7999</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">17.64%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>5</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2821-21" target="_blank">Kit de 1 batería XC5.0 para sierra alternativa M18 FUEL™ SAWZALL® 2821-21</a></td>
+                <td class="market-price">$9500</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$8799</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">7.38%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>6</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3697-22" target="_blank">Kit combinado de 2 herramientas M18 FUEL™ 3697-22</a></td>
+                <td class="market-price">$9660</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7969</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">17.51%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>7</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2420-21" target="_blank">Kit de Sierra Recìproca HACKZALL® M12™ 2420-21</a></td>
+                <td class="market-price">$4208</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$1058</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">74.84%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>8</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2621-20" target="_blank">Sierra alternativa M18™ SAWZALL® (sin accesorios) 2621-20</a></td>
+                <td class="market-price">$4860</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">48.58%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>9</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2722-20" target="_blank">Sierra alternativa M18 FUEL™ SUPER SAWZALL® 2722-20</a></td>
+                <td class="market-price">$6152</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3999</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">35.00%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>10</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/6117-33D" target="_blank">Amoladora deslizante de ángulo pequeño de 5" de 13 amperios, con bloqueo 6117-33D</a></td>
+                <td class="market-price">$3900</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3599</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">7.72%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>11</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2684-20" target="_blank">Pulidora orbital aleatoria M18 FUEL™ de 15 mm 2684-20</a></td>
+                <td class="market-price">$5239</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4359</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">16.80%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>12</td>
+                <td><a href="https://www.homedepot.com/p/Milwaukee-M18-18-Volt-Lithium-Ion-Cordless-Oscillating-Multi-Tool-Kit-2626-21HO/325924136" target="_blank">Kit multiherramienta oscilante inalámbrico de iones de litio de 18 voltios para Unised adulto Rojo Largo 2626-21</a></td>
+                <td class="market-price">$5109</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3799</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">25.65%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>13</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2746-20" target="_blank">Clavadora para clavos sin cabeza calibre 18 M18 FUEL™ 2746-20</a></td>
+                <td class="market-price">$9538</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$8249</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">13.52%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>14</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3692-22CT" target="_blank">Kit combinado de 2 herramientas compactas sin escobillas M18™ 3692-22CT</a></td>
+                <td class="market-price">$7429</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4899</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">34.06%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>15</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2691-22" target="_blank">Kit combinado de 2 herramientas inalámbricas con batería de IONES DE LITIO M18™ 2691-22</a></td>
+                <td class="market-price">$6828</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5949</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">12.88%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>16</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3650-22CT" target="_blank">Kit de destornillador de impacto hexagonal compacto sin escobillas M18™ de 1/4" 3650-22CT</a></td>
+                <td class="market-price">$5555</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4199</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.42%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>17</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2967-21B" target="_blank">Kit de llave de impacto de torque alto M18 FUEL™ de 1/2" con anillo de fricción 2967-21B</a></td>
+                <td class="market-price">$9010</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$8199</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">9.01%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>18</td>
+                <td><a href="https://www.milwaukeetool.com/es/Products/2836-20" target="_blank">Multiherramienta oscilante M12 FUEL™ 2836-20</a></td>
+                <td class="market-price">$3078</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">18.82%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>19</td>
+                <td><a href="https://www.milwaukeetool.com/es/Products/2526-20" target="_blank">Multiherramienta oscilante M18 FUEL™ 2526-20</a></td>
+                <td class="market-price">$7198</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4339</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">39.72%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>20</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2566-20" target="_blank">Trinquete de alta velocidad M12 FUEL™ de 1/4" 2566-20</a></td>
+                <td class="market-price">$4201</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3399</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">19.10%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>21</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2545-20" target="_blank">Sierra de calar M12 FUEL™ 2545-20</a></td>
+                <td class="market-price">$5364</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4669</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">12.96%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>22</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2626-20" target="_blank">Multiherramienta inalámbrica M18™ (sin accesorios) 2626-20</a></td>
+                <td class="market-price">$3113</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">19.73%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>23</td>
+                <td><a href="https://www.milwaukeetool.com/Products/2567-20" target="_blank">M12 FUEL™ 3/8" High Speed Ratchet 2567-20</a></td>
+                <td class="market-price">$5760</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3869</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">32.83%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>24</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2541-20" target="_blank">Clavadora compacta para clavos sin cabeza calibre 18 M12 FUEL™ 2541-20</a></td>
+                <td class="market-price">$5793</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4979</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">14.06%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>25</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2730-20" target="_blank">Sierra circular M18 FUEL™ de 6-1/2" (sin accesorios) 2730-20</a></td>
+                <td class="market-price">$5427</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4119</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.11%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>26</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2730-20" target="_blank">Sierra circular M18 FUEL™ de 6-1/2" (sin accesorios) 2730-20</a></td>
+                <td class="market-price">$5427</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4119</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.11%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>27</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2831-20" target="_blank">Sierra circular de inmersión M18 FUEL™ de 6-1/2" 2831-20</a></td>
+                <td class="market-price">$11405</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$9959</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">12.68%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>28</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2429-20" target="_blank">Sierra de banda subcompacta (sin accesorios) 2429-20</a></td>
+                <td class="market-price">$5866</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3959</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">32.51%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>29</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/0960-20" target="_blank">Aspiradora para materiales húmedos/secos M12 FUEL™ de 1.6 galones 0960-20</a></td>
+                <td class="market-price">$4796</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3629</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.35%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>30</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2357-20" target="_blank">Luz/cargador M18™ PACKOUT™ 2357-20</a></td>
+                <td class="market-price">$7155</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5699</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">20.35%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>31</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2646-20" target="_blank">Pistola engrasadora inalámbrica M18™ de 2 velocidades (sin accesorios) 2646-20</a></td>
+                <td class="market-price">$5950</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5459</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">8.25%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>32</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2446-20" target="_blank">Pistola engrasadora inalámbrica M12™ con batería de IONES DE LITIO (sin accesorios) 2446-20</a></td>
+                <td class="market-price">$4020</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3019</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.91%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>33</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2446-20" target="_blank">Pistola engrasadora inalámbrica M12™ con batería de IONES DE LITIO (sin accesorios) 2446-20</a></td>
+                <td class="market-price">$4020</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3019</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.91%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>34</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/1660-6" target="_blank">Taladro espada de 1/2" de 450 RPM 1660-6</a></td>
+                <td class="market-price">$5533</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4559</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">17.61%</td>
+                <td>Usado</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>35</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2522-20" target="_blank">Herramienta de corte compacta M12 FUEL™ de 3" 2522-20</a></td>
+                <td class="market-price">$3776</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2929</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">22.45%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>36</td>
+                <td><a href="https://www.milwaukeetool.com/Products/48-59-1809" target="_blank">Cargador secuencial para seis baterías M18™ 48-59-1809</a></td>
+                <td class="market-price">$6887</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6229</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">9.55%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>37</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2719-20" target="_blank">Sierra M18 FUEL™ Hackzall® (sin accesorios) 2719-20</a></td>
+                <td class="market-price">$4570</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3129</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">31.54%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>38</td>
+                <td><a href="https://www.homedepot.com/p/Milwaukee-M12-12-Volt-Lithium-Ion-4-0-Ah-and-2-0-Ah-Battery-Packs-and-Charger-Starter-Kit-48-59-2424/316779459" target="_blank">Kit básico de M18™ REDLITHIUM™ XC5.0 48-59-2424</a></td>
+                <td class="market-price">$3383</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2539</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.96%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>39</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2686-20" target="_blank">Rectificadora de corte sine escobillas M18™ e 4-1/2" / 5", interruptor de paleta 2686-20</a></td>
+                <td class="market-price">$3308</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$1919</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">42.00%</td>
+                <td>Usado</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>40</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/49-16-2573" target="_blank">Barrena TRAPSNAKE™ de 25' con CABLE DRIVE™ 49-16-2573</a></td>
+                <td class="market-price">$1730</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$1099</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">36.47%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>41</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/48-59-1807" target="_blank">Estación de carga rápida M18™ y M12™ 48-59-1807</a></td>
+                <td class="market-price">$5800</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5169</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">10.88%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>42</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2402-22" target="_blank">Kit de destornillador hexagonal M12 FUEL™ de 1/4" y 2 velocidades 2402-22</a></td>
+                <td class="market-price">$4541</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">22.95%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>43</td>
+                <td><a href="https://www.ebay.com/itm/315405242271?chn=ps&norover=1&mkevt=1&mkrid=21562-222008-2056-1&mkcid=2&itemid=315405242271&targetid=325425753764&device=c&mktype=pla&googleloc=1010079&poi=&campaignid=21384589900&mkgroupid=164552185618&rlsatarget=pla-325425753764" target="_blank">Kit de taladro/destornillador compacto sin escobillas M18™ de 1/2" 3601-21P</a></td>
+                <td class="market-price">$3700</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3299</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">10.84%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>44</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2746-20" target="_blank">Clavadora para clavos sin cabeza calibre 18 M18 FUEL™ 2746-20</a></td>
+                <td class="market-price">$9538</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$8249</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">13.52%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>45</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3692-22CT" target="_blank">Kit combinado de 2 herramientas compactas sin escobillas M18™ 3692-22CT</a></td>
+                <td class="market-price">$7429</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4899</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">34.06%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>46</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2745-20" target="_blank">Clavadora de carpintero en 30 grados M18 FUEL™ 2745-20</a></td>
+                <td class="market-price">$7200</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5279</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">26.68%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>47</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2841-20" target="_blank">Clavadora de acabado en ángulo M18 FUEL™ calibre 16 2841-20</a></td>
+                <td class="market-price">$8009</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">18.86%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>48</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2841-20" target="_blank">Clavadora de acabado en ángulo M18 FUEL™ calibre 16 2841-20</a></td>
+                <td class="market-price">$8009</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">18.86%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>49</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/Power-Tools/Woodworking/Nailers-and-Staplers/Framing-Nailers/2744-20" target="_blank">Clavadora de carpintero en 21 grados M18 FUEL™ 2744-20</a></td>
+                <td class="market-price">$6314</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4399</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">30.33%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>50</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2841-20" target="_blank">Clavadora de acabado en ángulo M18 FUEL™ calibre 16 2841-20</a></td>
+                <td class="market-price">$8009</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">18.86%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>51</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2839-20" target="_blank">Clavadora de acabado M18 FUEL™ calibre 15 2839-20</a></td>
+                <td class="market-price">$8636</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7829</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">9.35%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>52</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3692-22CT" target="_blank">Kit combinado de 2 herramientas compactas sin escobillas M18™ 3692-22CT</a></td>
+                <td class="market-price">$7429</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4759</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">35.95%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>53</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2691-22" target="_blank">Kit combinado de 2 herramientas inalámbricas con batería de IONES DE LITIO M18™ 2691-22</a></td>
+                <td class="market-price">$6962</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6199</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">10.96%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>54</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2691-22" target="_blank">Kit combinado de 2 herramientas inalámbricas con batería de IONES DE LITIO M18™ 2691-22</a></td>
+                <td class="market-price">$6962</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5269</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">24.32%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>55</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3601-22CT" target="_blank">Kit de taladro/destornillador compacto sin escobillas M18™ de 1/2" 3601-22CT</a></td>
+                <td class="market-price">$6660</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$5979</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">10.23%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>56</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2749-20" target="_blank">Engrapadora de corona estrecha calibre 18 M18 FUEL™ de 1/4" 2749-20</a></td>
+                <td class="market-price">$7706</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7179</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">6.85%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>57</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2848-20" target="_blank">Inflador M18™ 2848-20</a></td>
+                <td class="market-price">$3727</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2789</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">25.18%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>58</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2521-20" target="_blank">Sierra circular M12 FUEL™ de 5-3/8" 2521-20</a></td>
+                <td class="market-price">$4769</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4219</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">11.55%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>59</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2890-20" target="_blank">Radio para el lugar de trabajo M18™ 2890-20</a></td>
+                <td class="market-price">$4069</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3799</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">6.65%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>60</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/49-16-2573" target="_blank">Barrena TRAPSNAKE™ de 25' con CABLE DRIVE™ 49-16-2573</a></td>
+                <td class="market-price">$1730</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$949</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">45.14%</td>
+                <td>Nueva con pequeña fractura superior</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>61</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2648-20" target="_blank">Lijadora orbital aleatoria M18™ 2648-20</a></td>
+                <td class="market-price">$2925</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2759</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">5.69%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>62</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2522-20" target="_blank">Herramienta de corte compacta M12 FUEL™ de 3" 2522-20</a></td>
+                <td class="market-price">$3776</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2929</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">22.45%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>63</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2626-20" target="_blank">Multiherramienta inalámbrica M18™ (sin accesorios) 2626-20</a></td>
+                <td class="market-price">$3113</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">19.73%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>64</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2854-20" target="_blank">Llave de impacto compacta M18 FUEL™ de 3/8" con anillo de fricción, sin accesorios 2854-20</a></td>
+                <td class="market-price">$4656</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3999</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">14.12%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>65</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2626-20" target="_blank">Multiherramienta inalámbrica M18™ (sin accesorios) 2626-20</a></td>
+                <td class="market-price">$3113</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">19.73%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>66</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2915-20" target="_blank">M18 FUEL™ 1-1/8" SDS Plus Rotary Hammer w/ ONE-KEY™ 2915-20</a></td>
+                <td class="market-price">$11185</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$9729</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">13.02%</td>
+                <td>Semi-nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>67</td>
+                <td><a href="https://www.ebay.com/itm/315405242271?chn=ps&norover=1&mkevt=1&mkrid=21562-222008-2056-1&mkcid=2&itemid=315405242271&targetid=325425753764&device=c&mktype=pla&googleloc=1010079&poi=&campaignid=21384589900&mkgroupid=164552185618&rlsatarget=pla-325425753764" target="_blank">Kit de taladro/destornillador compacto sin escobillas M18™ de 1/2" 3601-21P</a></td>
+                <td class="market-price">$3700</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3069</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">17.05%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot not-available'></span>No disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>68</td>
+                <td><a href="https://www.homedepot.com/p/Milwaukee-M18-18-Volt-Lithium-Ion-Cordless-Oscillating-Multi-Tool-Kit-2626-21HO/325924136" target="_blank">Kit multiherramienta oscilante inalámbrico de iones de litio de 18 voltios para Unised adulto Rojo Largo 2626-21</a></td>
+                <td class="market-price">$5109</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3799</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">25.65%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>69</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2746-20" target="_blank">Clavadora para clavos sin cabeza calibre 18 M18 FUEL™ 2746-20</a></td>
+                <td class="market-price">$9538</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7999</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">16.14%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>70</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2494-22" target="_blank">Combo M12™ de 2 herramientas inalámbricas con batería de iones de litio 2494-22</a></td>
+                <td class="market-price">$4615</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3599</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">22.02%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>71</td>
+                <td><a href="https://www.milwaukeetool.com/Products/2525-21" target="_blank">Herramienta giratoria sin escobillas M12™ 2525-21</a></td>
+                <td class="market-price">$11551</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$7039</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">39.06%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>72</td>
+                <td><a href="https://www.ebay.com/itm/315405242271?chn=ps&norover=1&mkevt=1&mkrid=21562-222008-2056-1&mkcid=2&itemid=315405242271&targetid=325425753764&device=c&mktype=pla&googleloc=1010079&poi=&campaignid=21384589900&mkgroupid=164552185618&rlsatarget=pla-325425753764" target="_blank">Kit de taladro/destornillador compacto sin escobillas M18™ de 1/2" 3601-21P</a></td>
+                <td class="market-price">$3700</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3199</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">13.54%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>73</td>
+                <td><a href="https://www.ebay.com/itm/315405242271?chn=ps&norover=1&mkevt=1&mkrid=21562-222008-2056-1&mkcid=2&itemid=315405242271&targetid=325425753764&device=c&mktype=pla&googleloc=1010079&poi=&campaignid=21384589900&mkgroupid=164552185618&rlsatarget=pla-325425753764" target="_blank">Kit de taladro/destornillador compacto sin escobillas M18™ de 1/2" 3601-21P</a></td>
+                <td class="market-price">$3700</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$3299</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">10.84%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>74</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2691-22" target="_blank">Kit combinado de 2 herramientas inalámbricas con batería de IONES DE LITIO M18™ 2691-22</a></td>
+                <td class="market-price">$6962</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6399</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">8.09%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>75</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2746-20" target="_blank">Clavadora para clavos sin cabeza calibre 18 M18 FUEL™ 2746-20</a></td>
+                <td class="market-price">$9538</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$8249</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">13.52%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>76</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2904-22" target="_blank">Kit de taladro percutor/destornillador M18 FUEL™ de 1/2" 2904-22</a></td>
+                <td class="market-price">$8267</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6499</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">21.39%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>77</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/2691-22" target="_blank">Kit combinado de 2 herramientas inalámbricas con batería de IONES DE LITIO M18™ 2691-22</a></td>
+                <td class="market-price">$6962</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$6389</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">8.23%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>78</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/3692-22CT" target="_blank">Kit combinado de 2 herramientas compactas sin escobillas M18™ 3692-22CT</a></td>
+                <td class="market-price">$7429</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$4899</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">34.06%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+            <tr>
+                <td>79</td>
+                <td><a href="https://www.milwaukeetool.mx/es/Products/0880-20" target="_blank">Aspiradora en seco/húmedo M18™ (sin accesorios) 0880-20</a></td>
+                <td class="market-price">$3371</td> <!-- Truncando precio sin decimales -->
+                <td class="sale-price">$2679</td> <!-- Truncando precio sin decimales -->
+                <td class="discount">20.54%</td>
+                <td>Nuevo</td>
+                <td><span class='status-dot available'></span>Disponible</td>
+            </tr>
+
+                
+    
+        </tbody>
+    </table>
+    <button id="showMoreBtn" style="margin-top: 10px; padding: 10px 20px; background-color: #d00000; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: 'Montserrat', sans-serif;">Mostrar más</button>
+    <button id="showLessBtn" style="margin-top: 10px; padding: 10px 20px; background-color: #343a40; color: white; border: none; border-radius: 5px; cursor: pointer; display: none; font-family: 'Montserrat', sans-serif;">Mostrar menos</button>
+</div>
+
+</body>
+</html>
